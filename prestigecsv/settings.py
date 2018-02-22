@@ -1,31 +1,69 @@
-from psycopg2.extras import *
+import pymysql
 from prestigecsv.config import config, logger
 
 
-def db_connect(sql_vals):
+def db_insert(sql_vals):
     """
     Connecting to the PostgreSQL database server
     """
     conn = None
     try:
-        # read connection parameters
-        params = config()
-
         # connect to the PostgreSQL server
         logger.debug("Connecting to the PostgreSQL database...")
-        conn = psycopg2.connect(**params)
+        conn = db_connect()
         # create a cursor
         cur = conn.cursor()
         # execute a statement
-        sql = 'INSERT INTO prop_land (line, file_name) VALUES %s'
-        execute_values(cur=cur, sql=sql, argslist=sql_vals)
+        sql = 'INSERT INTO prop_land (line, file_name) VALUES (%s, %s)'
+        cur.executemany(sql, sql_vals)
         # close the communication with the PostgreSQL
         conn.commit()
         logger.debug('Data inserted in DB...')
         cur.close()
-    except (Exception, psycopg2.DatabaseError) as error:
+    except (Exception, pymysql.DatabaseError) as error:
         print(error)
     finally:
         if conn is not None:
             conn.close()
             logger.error('Database connection closed.')
+
+
+def db_create():
+    """
+    Creating a table
+    :return:
+    """
+    conn = None
+    try:
+        # connect to the PostgreSQL server
+        conn = db_connect()
+        # create a cursor
+        cur = conn.cursor()
+        # execute a statement to create a table
+        sql = """CREATE TABLE IF NOT EXISTS `prop_land` (
+              `id` BIGINT(20) NOT NULL AUTO_INCREMENT,
+              `line` VARCHAR(1000) NULL,
+              `file_name` VARCHAR(250)  NOT NULL default '',
+               PRIMARY KEY  (`id`)
+            );"""
+        cur.execute(sql)
+        cur.close()
+    except (Exception, pymysql.DatabaseError) as error:
+        print("Error in DB", error)
+    finally:
+        if conn is not None:
+            conn.close()
+            logger.error('Database connection closed.')
+
+
+def db_connect():
+    """
+    Connecting to the PostgreSQL database server
+    """
+    # read connection parameters
+    params = config()
+    # connect to the PostgreSQL server
+    logger.debug("Connecting to the PostgreSQL database...")
+    conn = pymysql.connect(**params)
+
+    return conn

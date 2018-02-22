@@ -5,7 +5,7 @@ import os
 from glob import glob
 
 from prestigecsv.config import BATCH_SIZE, logger, LOG
-from prestigecsv.settings import db_connect
+from prestigecsv.settings import db_insert, db_create
 
 
 def main(cmd):
@@ -15,7 +15,7 @@ def main(cmd):
     :return: None
     """
     print(cmd)
-    if 0 < len(cmd) < 3 and os.path.isdir(cmd[1]):
+    if len(cmd) == 2 and os.path.isdir(cmd[1]):
         xpath = glob(cmd[1] + '*.csv')
         if len(xpath) == 0:
             logger.debug('No CSV files found...')
@@ -45,15 +45,17 @@ def iter_csv(csv_list):
                 count += 1
                 # Reset Inserting every 100 data inserting
                 if count % BATCH_SIZE == 0:
-                    db_connect(data)
+                    db_insert(data)
                     data.clear()
                     count = 0
 
             if len(data) != 0:
-                db_connect(data)
+                db_insert(data)
 
 
 if __name__ == "__main__":
     print('LOG file is created in %s', LOG)
+    logger.debug('Creating a table structure "prop_land".')
+    db_create()
     args = sys.argv
     main(args)

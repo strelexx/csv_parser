@@ -9,7 +9,7 @@ logging.basicConfig(filename=LOG, filemode="w", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 
-def config(filename='database.ini', section='postgresql'):
+def config(filename='database.ini', section='mysql'):
     """
     Database connection configuration properties, gets from INI file
     :param filename: INI file name
