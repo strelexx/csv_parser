@@ -22,3 +22,7 @@ sudo pip3.6 install virtualenv
 
 - Go to prestigecsv folder
 - Run the command: ./parser.sh /path/to/csv/folder/
+
+### MISC
+
+Database configurations can be found in *database.ini* file in the project root folder 
